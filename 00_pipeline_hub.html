@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Literature Pipeline · Hub</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap');
+
+/* ─────────────────────────────────────────────
+   DESIGN SYSTEM — Danske × Google + MS Gradient
+───────────────────────────────────────────── */
+:root {
+  --font:  "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --mono:  "DM Mono", monospace;
+
+  --bg:          #FFFFFF;
+  --bg-alt:      #F8F9FA;
+  --bg-deep:     #F1F3F4;
+
+  --blue:        #1A73E8;
+  --blue-hover:  #1557B0;
+  --blue-tint:   #E8F0FE;
+
+  --text-1:  #202124;
+  --text-2:  #3C4043;
+  --text-3:  #5F6368;
+  --text-4:  #80868B;
+  --text-5:  #BDC1C6;
+
+  --border:  #DADCE0;
+  --border2: #E8EAED;
+
+  --green:    #137333;
+  --green-bg: #E6F4EA;
+  --red:      #C5221F;
+  --red-bg:   #FCE8E6;
+
+  --footer-bg:   #202124;
+  --footer-text: #E8EAED;
+  --footer-link: #9AA0A6;
+
+  /* Microsoft Vivid Gradient — 4 uses max this page */
+  --g: linear-gradient(90deg, #b84dc6 0%, #479ef5 100%);
+  --gd: linear-gradient(135deg, #b84dc6 0%, #479ef5 100%);
+
+  --sh-sm: 0 1px 4px rgba(0,0,0,0.06);
+  --sh-md: 0 4px 16px rgba(0,0,0,0.10);
+  --sh-blue: 0 4px 20px rgba(26,115,232,0.15);
+
+  --t: 200ms ease;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.65;
+  color: var(--text-2);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── GRADIENT UTILITIES ── */
+/* Use #1: eyebrow label */
+.eyebrow {
+  background: var(--g);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+
+/* Use #2: pipeline step connector when running */
+/* Use #3: featured table card border */
+/* Use #4: stat numbers in pipeline (count badges) */
+
+/* ── NAV ── */
+nav {
+  height: 64px;
+  min-height: 64px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  flex-shrink: 0;
+}
+
+.logo {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-1);
+  letter-spacing: -0.01em;
+}
+.logo em { color: var(--blue); font-style: normal; }
+
+.nav-actions { display: flex; align-items: center; gap: 20px; }
+
+.nav-count {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-3);
+}
+
+/* ── SHELL ── */
+.shell {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 368px 1fr;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: var(--bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 32px 28px;
+  gap: 32px;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 12px;
+  display: block;
+}
+
+/* Drop zone */
+.drop-zone {
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+  padding: 36px 20px;
+  text-align: center;
+  cursor: pointer;
+  background: var(--bg-alt);
+  transition: border-color var(--t), background var(--t);
+}
+.drop-zone:hover, .drop-zone.over {
+  border-color: var(--blue);
+  background: var(--blue-tint);
+}
+.dz-icon { font-size: 26px; margin-bottom: 10px; display: block; }
+.dz-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-1);
+  margin-bottom: 5px;
+}
+.dz-sub {
+  font-size: 13px;
+  color: var(--text-3);
+  line-height: 1.5;
+}
+.dz-sub strong { color: var(--blue); font-weight: 500; }
+#file-input { display: none; }
+
+/* Form */
+.form { display: flex; flex-direction: column; gap: 14px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 13px; font-weight: 500; color: var(--text-3); }
+.field input {
+  height: 44px;
+  padding: 0 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-1);
+  transition: border-color var(--t), box-shadow var(--t);
+}
+.field input::placeholder { color: var(--text-5); }
+.field input:focus {
+  outline: none;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(26,115,232,0.15);
+}
+
+/* Buttons */
+.btn {
+  height: 44px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 6px;
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background var(--t), box-shadow var(--t), border-color var(--t);
+}
+.btn-p {
+  background: var(--blue);
+  color: #fff;
+  width: 100%;
+}
+.btn-p:hover:not(:disabled) {
+  background: var(--blue-hover);
+  box-shadow: 0 2px 8px rgba(26,115,232,0.35);
+}
+.btn-p:disabled { background: var(--bg-deep); color: var(--text-5); cursor: not-allowed; }
+
+.btn-o {
+  background: transparent;
+  color: var(--blue);
+  border: 1px solid var(--border);
+  height: 36px;
+  font-size: 13px;
+}
+.btn-o:hover { background: var(--bg-alt); border-color: var(--blue); }
+.btn-o:disabled { opacity: 0.38; cursor: not-allowed; }
+
+/* Library */
+.lib-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+.p-item {
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color var(--t), background var(--t);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.p-item:hover { border-color: var(--blue); background: var(--bg-alt); }
+.p-item.active { border-color: var(--blue); background: var(--blue-tint); }
+.p-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); flex-shrink: 0; margin-top: 5px; }
+.p-info { flex: 1; min-width: 0; }
+.p-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.p-meta { font-size: 11px; color: var(--text-3); margin-top: 3px; font-family: var(--mono); }
+.p-del { font-size: 11px; color: var(--text-4); cursor: pointer; padding: 2px 5px; border-radius: 4px; }
+.p-del:hover { color: var(--red); background: var(--red-bg); }
+.lib-empty { font-size: 13px; color: var(--text-3); text-align: center; padding: 24px 0; }
+
+hr.rule { border: none; border-top: 1px solid var(--border); }
+
+/* ── MAIN ── */
+.main {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-alt);
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Pipeline strip */
+.pipeline {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 40px;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-shrink: 0;
+}
+
+.steps { display: flex; align-items: center; flex: 1; gap: 0; }
+
+.step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+/* connector line */
+.step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  width: 100%;
+  height: 1.5px;
+  background: var(--border);
+  transition: background 0.4s;
+  z-index: 0;
+}
+/* Use #2 — gradient on active connector */
+.step.running:not(:last-child)::after { background: var(--g); }
+.step.done:not(:last-child)::after { background: var(--green); }
+
+.step-node {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-3);
+  z-index: 1;
+  position: relative;
+  transition: border-color var(--t), background var(--t), box-shadow var(--t);
+}
+.step.done .step-node {
+  background: var(--green-bg);
+  border-color: var(--green);
+  color: var(--green);
+}
+.step.running .step-node {
+  background: var(--blue-tint);
+  border-color: var(--blue);
+  color: var(--blue);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+.step.error .step-node { background: var(--red-bg); border-color: var(--red); color: var(--red); }
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(26,115,232,0.18); }
+  50%      { box-shadow: 0 0 0 5px rgba(26,115,232,0); }
+}
+.step-name { font-size: 11px; color: var(--text-3); font-weight: 400; }
+.step.done .step-name { color: var(--green); font-weight: 500; }
+.step.running .step-name { color: var(--blue); font-weight: 500; }
+
+.status {
+  font-size: 13px;
+  color: var(--text-3);
+  font-family: var(--mono);
+  min-width: 200px;
+  flex-shrink: 0;
+}
+
+/* ── PANELS ── */
+.panels {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+  background: var(--bg);
+}
+.panel:nth-child(2) { background: var(--bg-alt); }
+.panel:last-child { border-right: none; }
+
+.panel-hd {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg);
+  flex-shrink: 0;
+}
+.panel-title { font-size: 14px; font-weight: 500; color: var(--text-1); }
+.panel-ct {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-3);
+  padding: 2px 10px;
+  background: var(--bg-deep);
+  border-radius: 100px;
+  border: 1px solid var(--border2);
+}
+
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+/* Empty state */
+.empty {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  padding: 32px;
+}
+.empty-ico { font-size: 28px; opacity: 0.2; }
+.empty p { font-size: 13px; color: var(--text-3); line-height: 1.55; max-width: 180px; }
+
+/* Text */
+.text-content {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.75;
+  color: var(--text-2);
+  white-space: pre-wrap;
+}
+
+/* Tables */
+/* Use #3 — gradient border on first/featured table */
+.tbl-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  background: var(--bg);
+  box-shadow: var(--sh-sm);
+  transition: box-shadow var(--t);
+}
+.tbl-card:hover { box-shadow: var(--sh-md); }
+
+.tbl-card.feat {
+  padding: 2px;
+  background: var(--gd);
+  border: none;
+  box-shadow: var(--sh-blue);
+}
+.tbl-card.feat .tbl-inner {
+  background: var(--bg);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.tbl-hd {
+  padding: 10px 16px;
+  background: var(--bg-alt);
+  border-bottom: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.tbl-hd-title { font-size: 13px; font-weight: 500; color: var(--text-1); line-height: 1.4; }
+.tbl-hd-meta { font-size: 11px; color: var(--text-3); font-family: var(--mono); white-space: nowrap; margin-left: 12px; flex-shrink: 0; }
+
+.tbl-scroll { overflow-x: auto; }
+
+table.t {
+  border-collapse: collapse;
+  font-family: var(--font);
+  font-size: 12.5px;
+  color: var(--text-2);
+  width: 100%;
+  min-width: 360px;
+}
+table.t thead tr { background: var(--text-1); }
+table.t th {
+  padding: 8px 14px;
+  text-align: left;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #fff;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+table.t td {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border2);
+  vertical-align: top;
+  line-height: 1.45;
+}
+table.t tbody tr:last-child td { border-bottom: none; }
+table.t tbody tr:hover td { background: var(--bg-alt); }
+
+.tbl-fn {
+  padding: 8px 16px;
+  font-size: 11px;
+  color: var(--text-3);
+  border-top: 1px solid var(--border2);
+  background: var(--bg-alt);
+  line-height: 1.6;
+}
+
+/* Figures */
+.fig-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  background: var(--bg);
+  box-shadow: var(--sh-sm);
+  transition: border-color var(--t), box-shadow var(--t);
+  cursor: pointer;
+}
+.fig-card:hover { border-color: var(--blue); box-shadow: var(--sh-md); }
+
+.fig-visual {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg-alt);
+}
+.fig-ico { font-size: 24px; }
+.fig-type {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.fig-body { padding: 12px 14px; border-top: 1px solid var(--border2); }
+.fig-lbl { font-size: 13px; font-weight: 500; color: var(--text-1); margin-bottom: 4px; }
+.fig-desc {
+  font-size: 12px;
+  color: var(--text-3);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Use #4 — gradient on panel count badges when populated */
+.panel-ct.has-data {
+  background: var(--g);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  border-color: var(--border2);
+}
+
+/* Download bar */
+.dl-bar {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 10px 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.dl-lbl { font-size: 12px; color: var(--text-3); margin-left: auto; font-family: var(--mono); }
+
+/* Footer */
+footer {
+  background: var(--footer-bg);
+  padding: 14px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  border-top: none;
+}
+.ft-l { font-size: 13px; color: var(--footer-link); }
+.ft-r { font-size: 12px; color: #5F6368; font-family: var(--mono); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-5); }
+
+/* Spin */
+.spin { display:inline-block; width:13px; height:13px; border:2px solid currentColor; border-top-color:transparent; border-radius:50%; animation:spin .7s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Lit<em>.</em>Pipeline</div>
+  <div class="nav-actions">
+    <button class="btn btn-o" onclick="exportAll()">⬇ Export Library</button>
+    <span class="nav-count" id="nav-count">0 papers</span>
+  </div>
+</nav>
+
+<div class="shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div>
+      <span class="eyebrow">01 · Upload</span>
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+        <span class="dz-icon">📄</span>
+        <div class="dz-title" id="dz-title">Drop PDF here</div>
+        <div class="dz-sub">or <strong>click to browse</strong><br>One upload · text, tables &amp; figures</div>
+      </div>
+      <input type="file" id="file-input" accept=".pdf">
+    </div>
+
+    <div>
+      <span class="label">02 · Metadata</span>
+      <div class="form">
+        <div class="field"><label>Title *</label><input type="text" id="m-title" placeholder="Full paper title"></div>
+        <div class="field"><label>Authors</label><input type="text" id="m-authors" placeholder="Author A., Author B. et al."></div>
+        <div class="field"><label>Journal · Year</label><input type="text" id="m-journal" placeholder="Journal · Year · Vol."></div>
+        <div class="field"><label>DOI</label><input type="text" id="m-doi" placeholder="10.xxxx/xxxxx"></div>
+      </div>
+    </div>
+
+    <button class="btn btn-p" id="xbtn" disabled onclick="runPipeline()">
+      Extract All — Text · Tables · Figures
+    </button>
+
+    <hr class="rule">
+
+    <div style="flex:1; display:flex; flex-direction:column; min-height:0;">
+      <span class="label">Library (<span id="lib-n">0</span>)</span>
+      <div class="lib-list" id="lib-list">
+        <div class="lib-empty">No papers yet</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- Pipeline -->
+    <div class="pipeline">
+      <div class="steps">
+        <div class="step" id="s-upload"><div class="step-node">↑</div><div class="step-name">Upload</div></div>
+        <div class="step" id="s-text"><div class="step-node">T</div><div class="step-name">Text</div></div>
+        <div class="step" id="s-tables"><div class="step-node">⊞</div><div class="step-name">Tables</div></div>
+        <div class="step" id="s-figures"><div class="step-node">▣</div><div class="step-name">Figures</div></div>
+        <div class="step" id="s-save"><div class="step-node">✓</div><div class="step-name">Saved</div></div>
+      </div>
+      <div class="status" id="status">Upload a paper to begin</div>
+    </div>
+
+    <!-- Panels -->
+    <div class="panels">
+
+      <div class="panel">
+        <div class="panel-hd">
+          <div class="panel-title">📝 Extracted Text</div>
+          <span class="panel-ct" id="ct-text">—</span>
+        </div>
+        <div class="panel-body" id="p-text">
+          <div class="empty"><div class="empty-ico">📝</div><p>Body text will appear here — citations, headers, footers &amp; figure labels removed</p></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <div class="panel-title">⊞ Tables</div>
+          <span class="panel-ct" id="ct-tables">—</span>
+        </div>
+        <div class="panel-body" id="p-tables">
+          <div class="empty"><div class="empty-ico">⊞</div><p>Tables rendered with full column structure preserved</p></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hd">
+          <div class="panel-title">▣ Figures</div>
+          <span class="panel-ct" id="ct-figs">—</span>
+        </div>
+        <div class="panel-body" id="p-figs">
+          <div class="empty"><div class="empty-ico">▣</div><p>Figures listed with captions and descriptions</p></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Download bar -->
+    <div class="dl-bar">
+      <button class="btn btn-o" id="dl-t" disabled onclick="dlText()">⬇ Text</button>
+      <button class="btn btn-o" id="dl-tb" disabled onclick="dlTables()">⬇ Tables (.json)</button>
+      <button class="btn btn-o" id="dl-f" disabled onclick="dlFigs()">⬇ Figures (.json)</button>
+      <span class="dl-lbl" id="dl-lbl">—</span>
+    </div>
+
+  </main>
+</div>
+
+<footer>
+  <div class="ft-l">Literature Pipeline · Danske × Google · MS Gradient</div>
+  <div class="ft-r" id="ft-r">v2.1 · March 2026</div>
+</footer>
+
+<script>
+// State
+let lib = {}, cur = null, b64 = null;
+try { const s = sessionStorage.getItem('lp3'); if (s) lib = JSON.parse(s); } catch(e) {}
+
+// Drop
+const dz = document.getElementById('drop-zone');
+const fi = document.getElementById('file-input');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); if (e.dataTransfer.files[0]) go(e.dataTransfer.files[0]); });
+fi.addEventListener('change', () => { if (fi.files[0]) go(fi.files[0]); });
+
+function go(file) {
+  st('Reading ' + file.name + '…');
+  const r = new FileReader();
+  r.onload = e => {
+    b64 = e.target.result.split(',')[1];
+    document.getElementById('dz-title').textContent = file.name;
+    document.querySelector('.dz-sub').innerHTML = '<strong style="color:var(--green)">✓ Ready</strong> · Fill metadata and extract';
+    document.getElementById('xbtn').disabled = false;
+    if (!document.getElementById('m-title').value)
+      document.getElementById('m-title').value = file.name.replace(/\.pdf$/i,'').replace(/[-_]/g,' ');
+    st('File loaded. Add metadata and click Extract All.');
+    step('upload','done');
+  };
+  r.readAsDataURL(file);
+}
+
+// Pipeline
+async function runPipeline() {
+  const title = document.getElementById('m-title').value.trim();
+  if (!title) { st('Please enter a title.'); return; }
+  if (!b64) { st('Please upload a PDF.'); return; }
+  document.getElementById('xbtn').disabled = true;
+  dlOff(true); clear();
+  st('Running extraction pipeline…');
+
+  const [tR, tbR, fR] = await Promise.allSettled([
+    xText(b64), xTables(b64), xFigs(b64)
+  ]);
+
+  const text    = tR.status  === 'fulfilled' ? tR.value   : null;
+  const tables  = tbR.status === 'fulfilled' ? tbR.value  : [];
+  const figures = fR.status  === 'fulfilled' ? fR.value   : [];
+
+  const id = 'p' + Date.now();
+  const rec = {
+    id, title,
+    authors: document.getElementById('m-authors').value.trim(),
+    journal: document.getElementById('m-journal').value.trim(),
+    doi:     document.getElementById('m-doi').value.trim(),
+    text: text || '', tables, figures,
+    at: new Date().toISOString()
+  };
+
+  lib[id] = rec; saveLib(); cur = rec;
+  renderText(text); renderTables(tables); renderFigs(figures);
+  step('save','done'); dlOff(false);
+  document.getElementById('dl-lbl').textContent = title.substring(0,50);
+  document.getElementById('ft-r').textContent = Object.keys(lib).length + ' papers · ' + new Date().toLocaleDateString();
+  st('✓ Done');
+
+  document.getElementById('xbtn').disabled = false; b64 = null;
+  ['m-title','m-authors','m-journal','m-doi'].forEach(i => document.getElementById(i).value = '');
+  document.getElementById('dz-title').textContent = 'Drop PDF here';
+  document.querySelector('.dz-sub').innerHTML = 'or <strong>click to browse</strong><br>One upload · text, tables &amp; figures';
+}
+
+// API
+async function api(b64, sys, usr) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514', max_tokens:1000, system:sys,
+      messages:[{role:'user',content:[
+        {type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},
+        {type:'text',text:usr}
+      ]}]
+    })
+  });
+  const d = await res.json();
+  if (d.error) throw new Error(d.error.message);
+  return d.content.map(b=>b.text||'').join('');
+}
+
+async function xText(b) {
+  step('text','running');
+  try {
+    const t = await api(b,
+      `Extract ONLY main body text from this research paper.
+REMOVE: page headers/footers, figure captions (Figure N.), table captions (Table N.), inline citations [1][1,2][1-3][33-36], entire References section, Acknowledgements, Conflicts of Interest, URLs/DOIs inline, author affiliation block, received/accepted/published dates, Keywords line, copyright statements.
+FORMAT: label abstract as ABSTRACT, section headings in CAPITALS, clean paragraph spacing.
+Output ONLY the cleaned text. No preamble.`,
+      'Extract clean body text.'
+    );
+    step('text','done'); return t;
+  } catch(e) { step('text','error'); throw e; }
+}
+
+async function xTables(b) {
+  step('tables','running');
+  try {
+    let r = await api(b,
+      `Extract ALL data tables. Return ONLY valid JSON, no markdown fences.
+{"tables":[{"title":"Full table caption","headers":["Col1","Col2"],"rows":[["cell","cell"]],"footnote":"abbreviations if present, else empty string"}]}
+Rules: strip citation numbers [1][23][1-3] from cells; merge split cells; preserve ALL columns; if none: {"tables":[]}`,
+      'Extract all data tables as JSON.'
+    );
+    r = r.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+    const p = JSON.parse(r); step('tables','done'); return p.tables||[];
+  } catch(e) { step('tables','error'); return []; }
+}
+
+async function xFigs(b) {
+  step('figures','running');
+  try {
+    let r = await api(b,
+      `Extract ALL figures. Return ONLY valid JSON, no markdown fences.
+{"figures":[{"label":"Figure 1","caption":"caption text, no citations","description":"2-3 sentence scientific description for someone who cannot see the image","type":"schematic|diagram|chart|microscopy|photo|other"}]}
+Rules: strip citations from captions; precise descriptions; include every Figure/Scheme; if none: {"figures":[]}`,
+      'Extract all figure metadata as JSON.'
+    );
+    r = r.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+    const p = JSON.parse(r); step('figures','done'); return p.figures||[];
+  } catch(e) { step('figures','error'); return []; }
+}
+
+// Render
+function renderText(text) {
+  const panel = document.getElementById('p-text');
+  const ct = document.getElementById('ct-text');
+  if (!text) { panel.innerHTML = '<div class="empty"><div class="empty-ico">⚠</div><p>Text extraction failed</p></div>'; ct.textContent='—'; ct.classList.remove('has-data'); return; }
+  const w = text.split(/\s+/).filter(Boolean).length;
+  ct.textContent = w.toLocaleString() + ' w';
+  ct.classList.add('has-data');
+  panel.innerHTML = `<pre class="text-content">${esc(text)}</pre>`;
+}
+
+function renderTables(tables) {
+  const panel = document.getElementById('p-tables');
+  const ct = document.getElementById('ct-tables');
+  ct.textContent = tables.length + (tables.length===1?' table':' tables');
+  if (tables.length) ct.classList.add('has-data'); else ct.classList.remove('has-data');
+  if (!tables.length) { panel.innerHTML='<div class="empty"><div class="empty-ico">—</div><p>No tables found</p></div>'; return; }
+
+  panel.innerHTML = tables.map((t, i) => {
+    const feat = i === 0;
+    const inner = `
+      <div class="tbl-hd">
+        <span class="tbl-hd-title">${esc(t.title||'Table '+(i+1))}</span>
+        <span class="tbl-hd-meta">${(t.rows||[]).length}r · ${(t.headers||[]).length}c</span>
+      </div>
+      <div class="tbl-scroll">
+        <table class="t">
+          <thead><tr>${(t.headers||[]).map(h=>`<th>${esc(String(h||''))}</th>`).join('')}</tr></thead>
+          <tbody>${(t.rows||[]).map(row=>`<tr>${row.map(c=>`<td>${esc(String(c||''))}</td>`).join('')}</tr>`).join('')}</tbody>
+        </table>
+      </div>
+      ${t.footnote?`<div class="tbl-fn">${esc(t.footnote)}</div>`:''}`;
+    return feat
+      ? `<div class="tbl-card feat"><div class="tbl-inner">${inner}</div></div>`
+      : `<div class="tbl-card">${inner}</div>`;
+  }).join('');
+}
+
+const FICO = {schematic:'🔷',diagram:'📊',chart:'📈',microscopy:'🔬',photo:'📷',other:'▣'};
+const FCOL = {schematic:'var(--blue-tint)',diagram:'var(--green-bg)',chart:'#FFF8E1',microscopy:'#F3E5F5',photo:'var(--bg-deep)',other:'var(--bg-alt)'};
+
+function renderFigs(figures) {
+  const panel = document.getElementById('p-figs');
+  const ct = document.getElementById('ct-figs');
+  ct.textContent = figures.length + (figures.length===1?' figure':' figures');
+  if (figures.length) ct.classList.add('has-data'); else ct.classList.remove('has-data');
+  if (!figures.length) { panel.innerHTML='<div class="empty"><div class="empty-ico">—</div><p>No figures found</p></div>'; return; }
+
+  panel.innerHTML = figures.map(f => `
+    <div class="fig-card">
+      <div class="fig-visual" style="background:${FCOL[f.type]||FCOL.other}">
+        <span class="fig-ico">${FICO[f.type]||'▣'}</span>
+        <span class="fig-type">${f.type||'figure'}</span>
+      </div>
+      <div class="fig-body">
+        <div class="fig-lbl">${esc(f.label)}</div>
+        <div class="fig-desc">${esc(f.description||f.caption||'—')}</div>
+      </div>
+    </div>`).join('');
+}
+
+// Library
+function saveLib() {
+  try { sessionStorage.setItem('lp3', JSON.stringify(lib)); } catch(e) {}
+  renderLib();
+}
+
+function renderLib() {
+  const keys = Object.keys(lib);
+  document.getElementById('lib-n').textContent = keys.length;
+  document.getElementById('nav-count').textContent = keys.length + (keys.length===1?' paper':' papers');
+  const list = document.getElementById('lib-list');
+  if (!keys.length) { list.innerHTML='<div class="lib-empty">No papers yet</div>'; return; }
+  list.innerHTML = keys.slice().reverse().map(id => {
+    const p = lib[id];
+    const active = cur && cur.id === id;
+    const date = new Date(p.at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'2-digit'});
+    return `<div class="p-item ${active?'active':''}" onclick="preview('${id}')">
+      <div class="p-dot"></div>
+      <div class="p-info">
+        <div class="p-title">${esc(p.title)}</div>
+        <div class="p-meta">${p.tables.length}T · ${p.figures.length}F · ${date}</div>
+      </div>
+      <span class="p-del" onclick="del('${id}',event)" title="Delete">✕</span>
+    </div>`;
+  }).join('');
+}
+
+function preview(id) {
+  cur = lib[id];
+  renderText(cur.text); renderTables(cur.tables); renderFigs(cur.figures);
+  dlOff(false); document.getElementById('dl-lbl').textContent = cur.title.substring(0,50);
+  ['upload','text','tables','figures','save'].forEach(s => step(s,'done'));
+  st('Viewing: ' + cur.title.substring(0,50)); renderLib();
+}
+
+function del(id, e) {
+  e.stopPropagation();
+  if (!confirm('Delete this paper?')) return;
+  delete lib[id];
+  if (cur && cur.id === id) { cur = null; clear(); dlOff(true); }
+  saveLib();
+}
+
+function exportAll() {
+  dld(new Blob([JSON.stringify(lib,null,2)],{type:'application/json'}), 'litpipeline_'+Date.now()+'.json');
+}
+
+function dlText() {
+  if (!cur) return;
+  dld(new Blob([`PAPER:   ${cur.title}\nAUTHORS: ${cur.authors}\nJOURNAL: ${cur.journal}\nDOI:     ${cur.doi}\nDATE:    ${cur.at}\n\n${'─'.repeat(60)}\n\n${cur.text}`],{type:'text/plain'}),
+    cur.title.substring(0,40).replace(/\s+/g,'_')+'_text.txt');
+}
+function dlTables() {
+  if (!cur) return;
+  dld(new Blob([JSON.stringify({paper:cur.title,doi:cur.doi,tables:cur.tables},null,2)],{type:'application/json'}),
+    cur.title.substring(0,40).replace(/\s+/g,'_')+'_tables.json');
+}
+function dlFigs() {
+  if (!cur) return;
+  dld(new Blob([JSON.stringify({paper:cur.title,doi:cur.doi,figures:cur.figures},null,2)],{type:'application/json'}),
+    cur.title.substring(0,40).replace(/\s+/g,'_')+'_figures.json');
+}
+function dld(blob, name) { const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click(); }
+
+// Helpers
+function st(m) { document.getElementById('status').textContent = m; }
+function step(name, state) { const el=document.getElementById('s-'+name); if(el) el.className='step '+state; }
+function dlOff(d) { ['dl-t','dl-tb','dl-f'].forEach(id => document.getElementById(id).disabled = d); }
+function clear() {
+  ['upload','text','tables','figures','save'].forEach(s => step(s,''));
+  [['p-text','📝','Extracted text will appear here'],['p-tables','⊞','Tables will appear here'],['p-figs','▣','Figures will appear here']].forEach(([id,ico,txt]) => {
+    document.getElementById(id).innerHTML = `<div class="empty"><div class="empty-ico">${ico}</div><p>${txt}</p></div>`;
+  });
+  ['ct-text','ct-tables','ct-figs'].forEach(id => { document.getElementById(id).textContent='—'; document.getElementById(id).classList.remove('has-data'); });
+}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// Seed
+(function() {
+  if (Object.keys(lib).length > 0) { renderLib(); return; }
+  const id = 'seed_001';
+  lib[id] = {
+    id, title:'Gold Nanoparticles in Diagnostics and Therapeutics for Human Cancer',
+    authors:'Singh P., Pandit S., Mokkapati V.R.S.S., Garg A., Ravikumar V., Mijakovic I.',
+    journal:'Int. J. Mol. Sci. · 2018 · Vol. 19, 1979', doi:'10.3390/ijms19071979', at:'2018-07-06T00:00:00.000Z',
+    text:`ABSTRACT
+
+The application of nanotechnology for the treatment of cancer is mostly based on early tumor detection and diagnosis by nanodevices capable of selective targeting and delivery of chemotherapeutic drugs to the specific tumor site. Due to the remarkable properties of gold nanoparticles, they have long been considered as a potential tool for diagnosis of various cancers and for drug delivery applications. These properties include high surface area to volume ratio, surface plasmon resonance, surface chemistry and multi-functionalization, facile synthesis, and stable nature.
+
+INTRODUCTION
+
+With recent advances in nanotechnology and medical science, numerous nanoparticles and nanomaterials have emerged from different bulk elements such as gold, silver, iron, copper, cobalt, platinum, etc. The ability to manipulate nanoparticle features, such as their physical, chemical and biological properties, opens up many possibilities to explore these nanoparticles in drug delivery as image contrast agents and for diagnostic purposes. Among various organic and inorganic nanoparticles, gold nanoparticles possess unique optical and Surface Plasmon Resonance (SPR) properties.
+
+Cancer is a disease state caused by abnormal cell growth and is the third leading cause of mortality worldwide. According to the World Health Organization (WHO), cancer caused 8.8 million deaths in 2015. Current cancer treatment is based on chemotherapeutic drugs, usually involving chemo or radiation therapy, with the aim to kill cancer cells. However, these treatments often result in several side effects due to damage caused to surrounding healthy tissues.
+
+Biological nanoparticle synthesis (plants and microorganisms mediated) is a relatively new, eco-friendly, and promising area of research with considerable potential for expansion.
+
+GOLD NANOPARTICLES AS DRUG CARRIERS
+
+Traditional drug delivery approaches result in dissemination of the drug in the whole body, with only a fraction reaching the tumor site. Targeted drug delivery circumvents this — a specific biologically active compound is released at a specific location in a controlled manner.
+
+Tumor tissue generally has a leaky vasculature allowing nanoparticles to accumulate easily — the enhanced permeation and retention (EPR) effect. In active targeting, ligands of tumor-specific biomarkers such as monoclonal antibodies, aptamers, and peptides are conjugated onto the nanoparticle surface.
+
+Methotrexate (MTX) conjugated with gold nanoparticles displayed higher cytotoxicity towards numerous tumor cell lines compared to free MTX. Doxorubicin (DOX) bound to gold nanoparticles via an acid-labile linker showed enhanced toxicity against the multi-drug resistant MCF-7/ADR breast cancer cell line.
+
+GOLD NANOPARTICLES IN PHOTOTHERMAL THERAPY AND PHOTOIMAGING
+
+Photothermal therapy (PTT) uses metal nanoparticles that exhibit SPR and efficiently convert light into heat. Near infra-red (NIR) light is chosen for PTT due to minimal tissue absorption at 650–900 nm. More than 50% of mice treated with a single administration of PEGylated gold nanoparticles and a single 10-min laser exposure showed no recurrence after 2 weeks.
+
+Photodynamic therapy (PDT) utilizes light, photosensitizers, and tissue oxygen to generate reactive oxygen species (ROS) causing cell death by apoptosis.
+
+CURRENT LIMITATIONS
+
+The toxicity of gold nanoparticles depends on shape, size, surface chemistry, targeting ligand, elasticity, and composition. No single standardized assay is currently available that can universally test the toxicity effect of all nanoparticles.
+
+CONCLUDING REMARKS AND FUTURE PERSPECTIVES
+
+Gold nanoparticles' optical properties, easy synthesis, possible control over size and shape, colloidal stability, and ability to tune surface chemistry make them favorable for biomedical applications. Critical issues to address include reproducible manufacturing methods, long-term health effects, stability, and cellular and immune responses.`,
+    tables:[
+      {title:"Table 1. Anti-Tumor Applications of Gold Nanoparticles in Drug Delivery",
+       headers:["Nanoparticle","Size (nm)","Outcome","Cell Lines"],
+       rows:[
+         ["MTX-AuNP","8–80","Higher cytotoxicity vs free MTX. Suppression of tumor growth.","Lewis lung carcinoma (LL2)"],
+         ["DOX-Hyd@AuNP","30","Enhanced toxicity against multi-drug resistant cells.","MCF-7/ADR"],
+         ["(Pt(R,R-dach))-AuNP","26.7","Higher cytotoxicity vs free oxaliplatin.","A549; HCT116, HCT15, HT29, RKO"],
+         ["Tfpep-AuNP + Pc 4","5.1","Targeted uptake significantly higher than non-targeted.","LN229, U87 glioma"],
+         ["CPP-DOX-AuNP","25","Higher cell death vs 41 nm AuNP.","HeLa, A549"],
+         ["FA-Au-SMCC-DOX","—","Enhanced drug accumulation vs free DOX in MDR cells.","HepG2-R, C0045C, HDF"],
+         ["FA-BHC-AuNP","20–60","Increased efficacy of BHC against cancer cells.","Vero, HeLa"],
+         ["Au-P(LA-DOX)-b-PEG-OH/FA NP","34","Enhanced uptake and cytotoxicity.","4T1 mouse mammary carcinoma"],
+         ["DOX@PVP-AuNP","12","Apoptosis induction; upregulation of tumor suppressor genes.","A549, H460, H520"],
+         ["DOX-BLM-PEG-AuNP","10","Enhanced half-maximal effective concentration for dual chemotherapy.","HeLa"],
+         ["EpCam-RPAuN","48","Biomimetic NP with PTX for combined PTT and chemotherapy.","4T1 mouse mammary carcinoma"]
+       ],
+       footnote:"MTX: Methotrexate; DOX: Doxorubicin; AuNP: Gold nanoparticle; BHC: Berberine hydrochloride; CPP: Cell penetrating peptides; FA: Folic acid; PEG: Poly ethylene glycol; PTT: Photothermal therapy; PTX: Paclitaxel."},
+      {title:"Table 2. Clinical Trials of Gold Nanoparticles",
+       headers:["Name","Materials","Application","ClinicalTrials ID"],
+       rows:[
+         ["AuroLase®","Silica-gold nanoshells + PEG","Thermal ablation: head/neck and lung tumors","NCT00848042, NCT01679470"],
+         ["AuroLase®","Silica-gold nanoshells + PEG","MRI/US fusion imaging + focal ablation of prostate","NCT02680535"],
+         ["NU-0129","SNA Gold NP","BCL2L12-targeting siRNA for recurrent glioblastoma","NCT03020017"],
+         ["Silica-Gold NPs","Silica-Gold NPs","Plasmonic PTT of atherosclerotic lesions","NCT01270139"],
+         ["CNM-Au8","Gold nanocrystal","Safety/tolerability/PK in healthy volunteers","NCT02755870"],
+         ["Gold NPs","Functionalized gold NPs","Nanosensor array for gastric lesion detection","NCT01420588"],
+         ["Gold NPs","Gold nanoparticles","Breath analysis for pulmonary arterial hypertension","NCT02782026"]
+       ], footnote:""}
+    ],
+    figures:[
+      {label:"Figure 1",caption:"Important properties of gold nanoparticles.",description:"Schematic showing key physicochemical properties of gold nanoparticles: surface functionalization with drugs, genes, and proteins; tunable size and shape morphology including nanospheres, nanorods, and nanocubes; fluorescence imaging capability; and biocompatibility for in vivo systemic delivery.",type:"schematic"},
+      {label:"Figure 2",caption:"Different approaches of gold nanoparticles in cancer diagnosis and treatment.",description:"Composite diagram of three AuNP therapeutic modalities: site-specific drug delivery via the EPR effect; photothermal therapy using NIR laser irradiation in a mouse model; and photodynamic therapy showing ROS generation causing cancer cell destruction.",type:"schematic"},
+      {label:"Figure 3",caption:"Distribution of nanoparticles with varying coatings and bound proteins.",description:"Flow diagram comparing biodistribution by surface coating: uncoated NPs bind high plasma proteins and are cleared by the reticuloendothelial system; PEGylated NPs achieve prolonged blood circulation; polysorbate-coated NPs recruit ApoE enabling blood-brain barrier crossing.",type:"diagram"},
+      {label:"Figure 4",caption:"Systemic delivery of multifunctional gold nanoparticles for bioimaging, PTT, and PDT.",description:"Mechanistic overview of AuNP systemic delivery pathways including glomerular filtration of particles under 6 nm, EPR-mediated passive tumor accumulation, and stealth multifunctional NPs enabling parallel bioimaging, NIR-activated PTT, and ROS-generating PDT.",type:"schematic"}
+    ]
+  };
+  saveLib(); preview(id);
+})();
+</script>
+</body>
+</html>
