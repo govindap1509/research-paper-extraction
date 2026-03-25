@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
+  const token_hash = requestUrl.searchParams.get("token_hash");
+  const type = requestUrl.searchParams.get("type");
   const next = requestUrl.searchParams.get("next") ?? "/app";
 
   const cookieStore = await cookies();
@@ -30,6 +32,20 @@ export async function GET(request: Request) {
 
   if (code) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (!error && data.user) {
+      await supabase.from("activity_logs").insert({
+        user_id: data.user.id,
+        action: "login",
+        metadata: { source: "magic_link" },
+      });
+      return NextResponse.redirect(new URL(next, request.url));
+    }
+  }
+
+  // implicit flow: token_hash + type=magiclink
+  if (token_hash && type) {
+    const { data, error } = await supabase.auth.verifyOtp({ token_hash, type: type as "magiclink" | "email" });
 
     if (!error && data.user) {
       await supabase.from("activity_logs").insert({
