@@ -224,7 +224,8 @@ export default function ToolClient({ userId, userEmail }: Props) {
 
     try {
       const response = await fetch("/api/extract", { method: "POST", body: formData });
-      const payload = (await response.json()) as {
+      const rawText = await response.text();
+      let payload: {
         text?: string;
         tables?: Array<{
           title?: string;
@@ -239,10 +240,16 @@ export default function ToolClient({ userId, userEmail }: Props) {
           type?: string;
           image_b64?: string;
         }>;
-      };
+        error?: string;
+      } = {};
+      try {
+        payload = JSON.parse(rawText) as typeof payload;
+      } catch {
+        throw new Error(`Extraction API error (${response.status}): ${rawText.slice(0, 300)}`);
+      }
 
       if (!response.ok) {
-        throw new Error((payload as { error?: string }).error ?? "Extraction failed");
+        throw new Error(payload.error ?? `Extraction failed (HTTP ${response.status})`);
       }
 
       const extractedText = payload.text ?? "";

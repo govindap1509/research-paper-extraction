@@ -6,7 +6,12 @@ from email.parser import BytesParser
 from email.policy import default
 from http.server import BaseHTTPRequestHandler
 
-import fitz  # PyMuPDF
+try:
+    import fitz  # PyMuPDF
+    FITZ_AVAILABLE = True
+except ImportError:
+    FITZ_AVAILABLE = False
+
 from pypdf import PdfReader
 import pdfplumber
 
@@ -141,6 +146,8 @@ MAX_FIGURES = 100
 
 def _extract_figures(pdf_bytes: bytes):
     """Extract embedded images from the PDF using PyMuPDF."""
+    if not FITZ_AVAILABLE:
+        return []
     figures = []
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     seen_digests = set()
