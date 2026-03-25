@@ -56,6 +56,8 @@ export default function ToolClient({ userId, userEmail }: Props) {
 
   const disableExtract = useMemo(() => !file || !title || busy, [file, title, busy]);
 
+  const extractTooltip = !file ? "Upload a PDF first" : !title ? "Enter a paper title first" : undefined;
+
   const progressPercent = useMemo(() => {
     if (liveStatus === "done") return 100;
     if (liveStatus === "processing") return 66;
@@ -364,6 +366,15 @@ export default function ToolClient({ userId, userEmail }: Props) {
     }
   }, [figures, loadFigureUrls]);
 
+  // Show a hint when file is selected but title is missing
+  useEffect(() => {
+    if (file && !title && !busy && !currentPaper) {
+      setStatus("Enter a paper title to enable extraction.");
+    } else if (!file && !currentPaper && !busy) {
+      setStatus("Upload a paper and start extraction.");
+    }
+  }, [file, title, busy, currentPaper]);
+
   function resetExtraction() {
     setCurrentPaper(null);
     setTextResult("");
@@ -500,7 +511,7 @@ export default function ToolClient({ userId, userEmail }: Props) {
         </div>
 
         <div className="mt-5 flex flex-wrap items-center gap-3">
-          <button className="btn-primary" disabled={disableExtract} onClick={runExtraction} type="button">
+          <button className="btn-primary" disabled={disableExtract} onClick={runExtraction} title={extractTooltip} type="button">
             {busy ? "Processing..." : "Extract Key Details"}
           </button>
           <button className="btn-secondary" disabled={!currentPaper || busy} onClick={downloadAll} type="button">
