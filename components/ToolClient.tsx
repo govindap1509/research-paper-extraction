@@ -215,15 +215,42 @@ export default function ToolClient({ userId, userEmail }: Props) {
     setPastPapers((prev) => [paper as Paper, ...prev]);
     await insertLog("upload", { paperId: paper.id, filename: file.name });
 
+    // Upload PDF to Supabase Storage to avoid Vercel's 4.5 MB function payload limit
+    const storagePath = `${userId}/${paper.id}/original.pdf`;
+    const { error: uploadError } = await supabase.storage
+      .from("paper-pdfs")
+      .upload(storagePath, file, { contentType: "application/pdf", upsert: true });
+
+    if (uploadError) {
+      await supabase.from("papers").update({ status: "error" }).eq("id", paper.id);
+      setBusy(false);
+      setStatus(`Upload failed: ${uploadError.message}`);
+      setLiveStatus("error");
+      return;
+    }
+
+    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+      .from("paper-pdfs")
+      .createSignedUrl(storagePath, 300); // 5 minutes
+
+    if (signedUrlError || !signedUrlData?.signedUrl) {
+      await supabase.from("papers").update({ status: "error" }).eq("id", paper.id);
+      setBusy(false);
+      setStatus("Failed to generate download URL for extraction.");
+      setLiveStatus("error");
+      return;
+    }
+
     await supabase.from("papers").update({ status: "processing" }).eq("id", paper.id);
     setStatus("Processing extraction...");
     setLiveStatus("processing");
 
-    const formData = new FormData();
-    formData.append("file", file);
-
     try {
-      const response = await fetch("/api/extract", { method: "POST", body: formData });
+      const response = await fetch("/api/extract", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ signed_url: signedUrlData.signedUrl }),
+      });
       const rawText = await response.text();
       let payload: {
         text?: string;
