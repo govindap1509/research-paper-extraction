@@ -4,6 +4,7 @@ import json
 import re
 from email.parser import BytesParser
 from email.policy import default
+from http.server import BaseHTTPRequestHandler
 
 import fitz  # PyMuPDF
 from pypdf import PdfReader
@@ -11,14 +12,6 @@ import pdfplumber
 
 
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
-
-
-def _json_response(payload, status=200):
-    return {
-        "statusCode": status,
-        "headers": {"Content-Type": "application/json"},
-        "body": json.dumps(payload),
-    }
 
 
 def _extract_text(pdf_bytes: bytes) -> str:
@@ -58,24 +51,7 @@ def _extract_tables(pdf_bytes: bytes):
     return tables
 
 
-def _request_header(request, key: str, default_value: str = "") -> str:
-    headers = getattr(request, "headers", {}) or {}
-    for name in (key, key.lower(), key.upper()):
-        value = headers.get(name)
-        if value:
-            return value
-    return default_value
 
-
-def _request_body_bytes(request) -> bytes:
-    body = getattr(request, "body", b"")
-    if isinstance(body, bytes):
-        return body
-    if isinstance(body, bytearray):
-        return bytes(body)
-    if hasattr(body, "read"):
-        return body.read() or b""
-    return b""
 
 
 def _extract_upload_from_form(body: bytes, content_type: str):
@@ -136,15 +112,12 @@ def _extract_upload_from_email(body: bytes, content_type: str):
     return None
 
 
-def _extract_uploaded_pdf_bytes(request):
-    body = _request_body_bytes(request)
+def _extract_uploaded_pdf_bytes(body: bytes, content_type: str):
     if not body:
         return None, "Uploaded file is empty"
 
     if len(body) > MAX_UPLOAD_BYTES:
         return None, "Uploaded file is too large"
-
-    content_type = _request_header(request, "content-type")
 
     if "multipart/form-data" in content_type:
         uploaded = _extract_upload_from_form(body, content_type)
@@ -223,19 +196,38 @@ def _extract_figures(pdf_bytes: bytes):
     return figures
 
 
-def handler(request):
-    if request.method != "POST":
-        return _json_response({"error": "Method not allowed"}, status=405)
+def _send_json(handler_self, payload, status=200):
+    body = json.dumps(payload).encode("utf-8")
+    handler_self.send_response(status)
+    handler_self.send_header("Content-Type", "application/json")
+    handler_self.send_header("Content-Length", str(len(body)))
+    handler_self.end_headers()
+    handler_self.wfile.write(body)
 
-    pdf_bytes, upload_error = _extract_uploaded_pdf_bytes(request)
-    if upload_error:
-        return _json_response({"error": upload_error}, status=400)
 
-    try:
-        text = _extract_text(pdf_bytes)
-        tables = _extract_tables(pdf_bytes)
-        figures = _extract_figures(pdf_bytes)
-        payload = {"text": text, "tables": tables, "figures": figures}
-        return _json_response(payload)
-    except Exception as exc:  # pragma: no cover
-        return _json_response({"error": str(exc)}, status=500)
+class handler(BaseHTTPRequestHandler):
+    """Vercel Python serverless function — must be a BaseHTTPRequestHandler subclass."""
+
+    def do_POST(self):
+        content_type = self.headers.get("content-type", "")
+        content_length = int(self.headers.get("content-length", 0))
+        body = self.rfile.read(content_length) if content_length else b""
+
+        pdf_bytes, upload_error = _extract_uploaded_pdf_bytes(body, content_type)
+        if upload_error:
+            _send_json(self, {"error": upload_error}, status=400)
+            return
+
+        try:
+            text = _extract_text(pdf_bytes)
+            tables = _extract_tables(pdf_bytes)
+            figures = _extract_figures(pdf_bytes)
+            _send_json(self, {"text": text, "tables": tables, "figures": figures})
+        except Exception as exc:  # pragma: no cover
+            _send_json(self, {"error": str(exc)}, status=500)
+
+    def do_GET(self):
+        _send_json(self, {"error": "Method not allowed"}, status=405)
+
+    def log_message(self, *args):  # silence default request logging
+        pass
